@@ -1,0 +1,15 @@
+{% extends "user/index.html" %}
+
+{% block title%}
+Send Message 
+{% endblock%}
+
+{%block body%}
+    <h1>введите сообщение</h1>
+<form method='post'>
+        {% csrf_token %}
+    <label for="1">Message Text</label>
+    <input type="text" id="1" name="message_text"/>
+    <button type='submit'>Send</button>
+</form>
+{%endblock%}
