@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        li.unread {
+            color: green; 
+        }
+    </style>
     <meta charset="UTF-8">
     <title>
         {% block title %}
@@ -10,7 +15,9 @@
 </head>
 <body>
     {% block body %}
-    Сделайте наследование
+        <a href="messages/">Мои сообщения</a>
+        <br>
+        <a href="send-get/">Send</a>
     {% endblock %}
     
 </body>

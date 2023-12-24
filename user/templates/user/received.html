@@ -1,0 +1,31 @@
+{% extends "user/index.html" %}
+
+{% block title%}
+Read Messages
+{% endblock%}
+
+{% block body %}
+    {% if unread %}
+        <h2>Your unread messages</h2>
+        <ul>
+        {% for message in unread %}
+            <li class="unread"> {{message.sended_at}} {{message.text}} {{message.user}} </li>
+        {% endfor %}
+        </ul>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">Read</button>
+        </form>
+    {% else %}
+        <h2>No unread messages</h2>
+    {% endif %}
+    {% if read %}  
+        <h2>All messages</h2>
+        <ul>
+            {% for message in read %}
+                <li class="read"> {{message.sended_at}} {{message.text}} | {{message.user}} </li>    
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock body %}
+
