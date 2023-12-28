@@ -1,12 +1,13 @@
 from django.shortcuts import render
-from .models import User, Message
+from .models import User, Message, Chat
 from django.http import HttpResponse, HttpRequest
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
+from django.db.models import Q 
 
 class MessageCreateView(CreateView):
     model = Message
-    fields = "text", "receiver"
+    fields = "text", "receiver", "chat_id"
     template_name = "user/post_form.html"
     success_url = reverse_lazy("get_message")
 
@@ -15,6 +16,11 @@ class MessageCreateView(CreateView):
         response = super().form_valid(form)
         return response
     
+class ChatCreateView(CreateView):
+    model = Chat
+    fields = "name", "users",
+    template_name = "user/chat_form.html"
+    success_url = reverse_lazy("chat")
 
 
 def req(request: HttpRequest):
@@ -23,16 +29,23 @@ def req(request: HttpRequest):
 def get_send_message_page(request: HttpRequest):
     if request.method == "POST":
         receiver = User.objects.get(username=request.POST.get("username"))
+        chat_name = Chat.objects.get(name=request.POST.get("name"))
+        user, created = User.objects.get_or_create(username=request.user.username)
         if receiver:
-            user, created = User.objects.get_or_create(username=request.user.username)
             msg = Message.objects.create(text=request.POST.get("message_text"), user=user, receiver=receiver)
             user.save()
+            msg.save()
+        if chat:
+            chat = Chat.objects.get(name=chat_name)
+            msg = Message.objects.create(text=request.POST.get("message_text"), user=user, chat_id=chat)
+            user.save()
+            chat.save()
             msg.save()
     return render(request, "user/post_form.html")
 
 def get_messages(request: HttpRequest):
-        
-    all_messges = Message.objects.filter(receiver=request.user.pk).all()
+    user_chats = User.objects.get(username=request.user.username).chats.all()
+    all_messges = Message.objects.filter(Q(receiver=request.user.pk) | Q(chat_id__in=user_chats)).all()
     if request.method == "POST":
         for i in all_messges:
             if not i.is_read:
@@ -46,3 +59,5 @@ def get_messages(request: HttpRequest):
         "msgs": all_messges,
     }    
     return render(request, "user/received.html", context=context)
+
+
